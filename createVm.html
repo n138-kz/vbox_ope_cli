@@ -92,6 +92,12 @@
       $('#inistr_vmname').val( ($('#inistr_vmname').val()).trim() );
       changeEv_basedir();
     }
+    function changeEv_isofilepath(){
+      $('#inistr_isofilepath').val( ($('#inistr_isofilepath').val()).replace(/\\/g, '/') );
+    }
+    function changeEv_vdifilepath(){
+      $('#inistr_vdifilepath').val( ($('#inistr_vdifilepath').val()).replace(/\\/g, '/') );
+    }
 
   </script>
 </head>
@@ -140,11 +146,11 @@
         </tr>
         <tr>
           <th>{ISO_MEDIUM_FILENAME}</th>
-          <td><input type="text" id="inistr_isofilepath" list="candidate_isofilepath" /></td>
+          <td><input type="text" id="inistr_isofilepath" list="candidate_isofilepath" onchange="changeEv_isofilepath()" /></td>
         </tr>
         <tr>
           <th>{VDI_MEDIUM_FILENAME}</th>
-          <td><input type="text" id="inistr_vdifilepath" list="candidate_vdifilepath" /></td>
+          <td><input type="text" id="inistr_vdifilepath" list="candidate_vdifilepath" onchange="changeEv_vdifilepath()" /></td>
         </tr>
       </tbody>
     </table>
