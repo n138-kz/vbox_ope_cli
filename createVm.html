@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" charset="utf-8"></script>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+  <style media="all">
+    body{
+      background-color: azure;
+    }
+    #cmd_exported{
+      white-space: pre-line;
+      background-color: lavender;
+      display: none;
+    }
+    form input[type="text"]{
+      width: 100ex;
+      user-select: contain;
+    }
+    form input.inputerror{
+      background-color: crimson;
+      color: azure;
+    }
+    form .notGenerated{
+      display: none;
+    }
+  </style>
+  <script type="text/javascript">
+    let rootsrc = '';
+    let tempsrc = '';
+
+    $(function(){
+      rootsrc = ($('#cmd_exported').text()).trim();
+    });
+
+    function downloadIniScript(elmnt){
+      /*
+       * https://cpoint-lab.co.jp/article/201805/2915/
+       * Element.insertAdjacentHTML('afterend', '<div />'): jQuery.after('<div />')
+       */
+      let elmnt_id = 'issue'+new Date().getTime();
+      elmnt.insertAdjacentHTML('afterend', '<a href="#" id="'+elmnt_id+'" download="">In-Progress</a>');
+      elmnt = document.getElementById(elmnt_id);
+
+      elmnt.download = elmnt_id + '.txt';
+      elmnt.href = window.URL.createObjectURL(new Blob([tempsrc], {
+        type: 'text/plain'
+      }));
+      elmnt.click();
+      elmnt.remove();
+
+    }
+
+    function applyConfig(){
+      let continueExport = true;
+      $('form table input[type="text"]').map(function(elmnt, index){
+        if (($(this).val()).trim().length == 0) {
+          $(this).addClass('inputerror');
+          continueExport = false;
+        } else {
+          $(this).removeClass('inputerror');
+        }
+      });
+
+      if (continueExport) {
+        tempsrc = rootsrc;
+        tempsrc = tempsrc.replace(/ {2}/g, '');
+        tempsrc = tempsrc.replace(/\{BASEDIR\}/g, $('#inistr_basedir').val());
+        tempsrc = tempsrc.replace(/\{VMNAME\}/g, $('#inistr_vmname').val());
+        tempsrc = tempsrc.replace(/\{OSTYPE\}/g, $('#inistr_ostype option:selected').val());
+        tempsrc = tempsrc.replace(/\{STORAGENAME\}/g, $('#inistr_scname').val());
+        tempsrc = tempsrc.replace(/\{ISO_MEDIUM_FILENAME\}/g, $('#inistr_isofilepath').val());
+        tempsrc = tempsrc.replace(/\{VDI_MEDIUM_FILENAME\}/g, $('#inistr_vdifilepath').val());
+        $('#cmd_exported').text(tempsrc);
+
+        $('.notGenerated').removeClass('notGenerated');
+        $('#cmd_exported').hide().fadeIn(500);
+      }
+    }
+
+    function changeEv_basedir(){
+      $('.notChanged').addClass('notGenerated');
+      $('#inistr_basedir').val( ($('#inistr_basedir').val()).trim() );
+      $('#inistr_isofilepath').val( $('#inistr_basedir').val() + $('#inistr_vmname').val() + '/guestOS.iso');
+      $('#inistr_vdifilepath').val( $('#inistr_basedir').val() + $('#inistr_vmname').val() + '/guestVM.vdi');
+    }
+    function changeEv_vmname(){
+      $('#inistr_vmname').val( ($('#inistr_vmname').val()).trim() );
+      changeEv_basedir();
+    }
+
+  </script>
+</head>
+<body>
+  <form name="control_panel" action="">
+    <datalist id="candidate_basedir">
+      <option value="/mnt/tnas/vms/"></option>
+    </datalist>
+    <datalist id="candidate_vmname">
+      <option value="labs_guestos"></option>
+    </datalist>
+    <datalist id="candidate_scname">
+      <option value="satactl"></option>
+    </datalist>
+    <datalist id="candidate_isofilepath">
+      <option value="/tmp/guestOS.iso"></option>
+    </datalist>
+    <datalist id="candidate_vdifilepath">
+      <option value="/tmp/guestVM.vdi"></option>
+    </datalist>
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <td><input type="button" value="設定反映" onclick="applyConfig()"><span class="notGenerated notChanged"> | </span><input type="button" class="notGenerated notChanged" value="ダウンロード" onclick="downloadIniScript(this)"></td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>base folder</th>
+          <td><input type="text" id="inistr_basedir" list="candidate_basedir" onchange="changeEv_basedir()" /></td>
+        </tr>
+        <tr>
+          <th>VM Name</th>
+          <td><input type="text" id="inistr_vmname" list="candidate_vmname" onchange="changeEv_vmname()" /></td>
+        </tr>
+        <tr>
+          <th>Guest OS</th>
+          <td><select id="inistr_ostype">
+            <option value="RedHat_64">RedHat 64bit</option>
+          </select></td>
+        </tr>
+        <tr>
+          <th>Storage Controller Name</th>
+          <td><input type="text" id="inistr_scname" list="candidate_scname" /></td>
+        </tr>
+        <tr>
+          <th>{ISO_MEDIUM_FILENAME}</th>
+          <td><input type="text" id="inistr_isofilepath" list="candidate_isofilepath" /></td>
+        </tr>
+        <tr>
+          <th>{VDI_MEDIUM_FILENAME}</th>
+          <td><input type="text" id="inistr_vdifilepath" list="candidate_vdifilepath" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+  <div id="cmd_exported">
+    VBoxManage createvm --name {VMNAME} --groups /labs --ostype {OSTYPE} --basefolder {BASEDIR} --register
+    VBoxManage modifyvm {VMNAME} --rtcuseutc on
+    VBoxManage modifyvm {VMNAME} --firmware efi
+    VBoxManage modifyvm {VMNAME} --memory 1536
+    VBoxManage modifyvm {VMNAME} --vram 256
+    VBoxManage modifyvm {VMNAME} --nic1 bridged
+    VBoxManage modifyvm {VMNAME} --cableconnected1 on
+    VBoxManage modifyvm {VMNAME} --nicpromisc1 allow-all
+    VBoxManage modifyvm {VMNAME} --bridgeadapter1 eth0
+    VBoxManage modifyvm {VMNAME} --vrde on
+    VBoxManage modifyvm {VMNAME} --vrdeport 53389
+    VBoxManage modifyvm {VMNAME} --vrdeauthtype null
+    VBoxManage modifyvm {VMNAME} --vrdemulticon on
+
+    VBoxManage storagectl {VMNAME} --name {STORAGENAME} --add sata
+    VBoxManage storagectl {VMNAME} --name {STORAGENAME} --portcount 4
+    VBoxManage storagectl {VMNAME} --name {STORAGENAME} --hostiocache on
+    VBoxManage storagectl {VMNAME} --name {STORAGENAME} --bootable on
+
+    VBoxManage storageattach {VMNAME} --storagectl {STORAGENAME} --port 0 --type dvddrive --medium {ISO_MEDIUM_FILENAME} --mtype readonly
+
+    VBoxManage createmedium --filename {VDI_MEDIUM_FILENAME} --size 25600 --format VDI
+    VBoxManage modifymedium {VDI_MEDIUM_FILENAME} --compact
+    VBoxManage storageattach {VMNAME} --storagectl {STORAGENAME} --port 1 --type hdd --medium {VDI_MEDIUM_FILENAME}
+  </div>
+</body>
+</html>
