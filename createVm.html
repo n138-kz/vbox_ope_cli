@@ -72,6 +72,7 @@
         tempsrc = tempsrc.replace(/\{BASEDIR\}/g, $('#inistr_basedir').val());
         tempsrc = tempsrc.replace(/\{VMNAME\}/g, $('#inistr_vmname').val());
         tempsrc = tempsrc.replace(/\{OSTYPE\}/g, $('#inistr_ostype option:selected').val());
+        tempsrc = tempsrc.replace(/\{VMGROUP\}/g, $('#inistr_vmgroup').val());
         tempsrc = tempsrc.replace(/\{STORAGENAME\}/g, $('#inistr_scname').val());
         tempsrc = tempsrc.replace(/\{ISO_MEDIUM_FILENAME\}/g, $('#inistr_isofilepath').val());
         tempsrc = tempsrc.replace(/\{VDI_MEDIUM_FILENAME\}/g, $('#inistr_vdifilepath').val());
@@ -85,11 +86,15 @@
     function changeEv_basedir(){
       $('.notChanged').addClass('notGenerated');
       $('#inistr_basedir').val( ($('#inistr_basedir').val()).trim() );
-      $('#inistr_isofilepath').val( $('#inistr_basedir').val() + $('#inistr_vmname').val() + '/guestOS.iso');
-      $('#inistr_vdifilepath').val( $('#inistr_basedir').val() + $('#inistr_vmname').val() + '/guestVM.vdi');
+      $('#inistr_isofilepath').val( ( $('#inistr_basedir').val() + $('#inistr_vmgroup').val() + '/' + $('#inistr_vmname').val() + '/guestOS.iso' ).replace(/\/+/g, '/') );
+      $('#inistr_vdifilepath').val( ( $('#inistr_basedir').val() + $('#inistr_vmgroup').val() + '/' + $('#inistr_vmname').val() + '/guestVM.vdi' ).replace(/\/+/g, '/') );
     }
     function changeEv_vmname(){
       $('#inistr_vmname').val( ($('#inistr_vmname').val()).trim() );
+      changeEv_basedir();
+    }
+    function changeEv_vmgroup(){
+      $('#inistr_vmgroup').val( ($('#inistr_vmgroup').val()).trim() );
       changeEv_basedir();
     }
     function changeEv_isofilepath(){
@@ -108,6 +113,10 @@
     </datalist>
     <datalist id="candidate_vmname">
       <option value="labs_guestos"></option>
+    </datalist>
+    <datalist id="candidate_vmgroup">
+      <option value="/labs"></option>
+      <option value="/"></option>
     </datalist>
     <datalist id="candidate_scname">
       <option value="satactl"></option>
@@ -135,6 +144,10 @@
           <td><input type="text" id="inistr_vmname" list="candidate_vmname" onchange="changeEv_vmname()" /></td>
         </tr>
         <tr>
+          <th>VM Groups</th>
+          <td><input type="text" id="inistr_vmgroup" list="candidate_vmgroup" onchange="changeEv_vmgroup()" /></td>
+        </tr>
+        <tr>
           <th>Guest OS</th>
           <td><select id="inistr_ostype">
             <option value="RedHat_64">RedHat 64bit</option>
@@ -156,7 +169,7 @@
     </table>
   </form>
   <div id="cmd_exported">
-    VBoxManage createvm --name {VMNAME} --groups /labs --ostype {OSTYPE} --basefolder {BASEDIR} --register
+    VBoxManage createvm --name {VMNAME} --groups {VMGROUP} --ostype {OSTYPE} --basefolder {BASEDIR} --register
     VBoxManage modifyvm {VMNAME} --rtcuseutc on
     VBoxManage modifyvm {VMNAME} --firmware efi
     VBoxManage modifyvm {VMNAME} --memory 1536
