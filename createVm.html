@@ -86,8 +86,9 @@
     function changeEv_basedir(){
       $('.notChanged').addClass('notGenerated');
       $('#inistr_basedir').val( ($('#inistr_basedir').val()).trim() );
-      $('#inistr_isofilepath').val( ( $('#inistr_basedir').val() + $('#inistr_vmgroup').val() + '/' + $('#inistr_vmname').val() + '/guestOS.iso' ).replace(/\/+/g, '/') );
-      $('#inistr_vdifilepath').val( ( $('#inistr_basedir').val() + $('#inistr_vmgroup').val() + '/' + $('#inistr_vmname').val() + '/guestVM.vdi' ).replace(/\/+/g, '/') );
+      let vmworkdir = $('#inistr_basedir').val() + $('#inistr_vmgroup').val() + '/' + $('#inistr_vmname').val();
+      $('#inistr_isofilepath').val( ( vmworkdir + '/guestOS.iso' ).replace(/\/+/g, '/') );
+      $('#inistr_vdifilepath').val( ( vmworkdir + '/' + $('#inistr_vmname').val() + '_' + $('#inistr_scname').val() + '_disk0.vdi' ).replace(/\/+/g, '/') );
     }
     function changeEv_vmname(){
       $('#inistr_vmname').val( ($('#inistr_vmname').val()).trim() );
@@ -95,6 +96,10 @@
     }
     function changeEv_vmgroup(){
       $('#inistr_vmgroup').val( ($('#inistr_vmgroup').val()).trim() );
+      changeEv_basedir();
+    }
+    function changeEv_scname(){
+      $('#inistr_scname').val( ($('#inistr_scname').val()).trim() );
       changeEv_basedir();
     }
     function changeEv_isofilepath(){
@@ -155,7 +160,7 @@
         </tr>
         <tr>
           <th>Storage Controller Name</th>
-          <td><input type="text" id="inistr_scname" list="candidate_scname" /></td>
+          <td><input type="text" id="inistr_scname" list="candidate_scname" onchange="changeEv_scname()" /></td>
         </tr>
         <tr>
           <th>{ISO_MEDIUM_FILENAME}</th>
