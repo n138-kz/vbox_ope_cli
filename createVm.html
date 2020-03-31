@@ -182,6 +182,7 @@
     VBoxManage modifyvm {VMNAME} --vrdeport 53389
     VBoxManage modifyvm {VMNAME} --vrdeauthtype null
     VBoxManage modifyvm {VMNAME} --vrdemulticon on
+    VBoxManage modifyvm {VMNAME} --vrde off
 
     VBoxManage storagectl {VMNAME} --name {STORAGENAME} --add sata
     VBoxManage storagectl {VMNAME} --name {STORAGENAME} --portcount 5
