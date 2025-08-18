@@ -48,6 +48,19 @@ This repos is manuals for oracle virtual box operation.
 - [![](https://www.google.com/s2/favicons?size=64&domain=https://github.com)vbox_ope_cli](https://github.com/n138-kz/vbox_ope_cli/)
 - [![](https://www.google.com/s2/favicons?size=64&domain=https://www.virtualbox.org)Oracle VM VirtualBox](https://www.virtualbox.org/)
 
+## How to use the VBoxManage
+
+```sh
+sudo dnf config-manager --add-repo=http://download.virtualbox.org/virtualbox/rpm/rhel/virtualbox.repo
+sudo dnf repolist --all | grep '^repo\|^virtualbox'
+sudo dnf list -y VirtualBox*
+```
+
+```sh
+sudo dnf install -y kernel-devel perl
+sudo dnf install -y VirtualBox-7.2
+```
+
 ## License
 
 [Copyright (c) 2025 Yuu Komiya (n138), Under MIT License](LICENSE)  
